@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+          <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+          <title>Running Successful</title>
+          <style>
+           body {
+  background: url('https://img.freepik.com/free-vector/cinematic-realistic-camera-background-with-text-space_1017-42671.jpg?w=1060&t=st=1698307682~exp=1698308282~hmac=a82c39ff7c73ab5ab5bb9a642694fb9e0e345e622c0aa47166baa23ce50f61c4') center/cover no-repeat fixed;
+  color: black;
+}
+
+
+            .container {
+              min-height: 30vh;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              margin: 61px auto;
+              border-radius: 12px;
+              background: rgba(255, 255, 255, 0); /* Transparent white background */
+            }
+
+
+            .chats {
+              align-items: flex-start;
+              flex-direction: column;
+              background: white;
+              background-size: cover;
+            }
+
+            .chats h2, .chats div {
+              color: black;
+            }
+
+            .copy-button {
+              color: black;
+              position: absolute;
+              top: 5px;
+              right: 5px;
+            }
+            /* Add this to your CSS to set the background images */
+            .btn-custom {
+              width: 50px; /* Adjust the width as needed */
+              height: 50px; /* Adjust the height as needed */
+              background-size: cover;
+            }
+
+            /* #start {
+              background-image: url('https://replit.com/@abhishekgouda42/accolade#templates/img1.jpg'); /* Replace with the path to your start button image */
+            
+
+            /* #stop {
+              background-image: url('stop.png'); /* Replace with the path to your stop button image */
+            /*}  */
+
+            /* #send {
+              background-image: url('send.png'); /* Replace with the path to your send button image */
+          /*  }
+ */  
+
+            hr {
+              margin-left: 0;
+              margin-right: 0;
+              width: 100%;
+            }
+          </style>
+        </head>
+        <body>
+          <nav class="navbar navbar-expand-lg bg-body-tertiary">
+            <div class="container-fluid">
+              <a class="navbar-brand" href="#">VoiceGPT</a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                  <li class="nav-item">
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </nav>
+          <h1 class='text-center my-2 py-2'>Welcome To VoiceGPT</h1>
+
+          <div class="container">
+            <button id="start" type="button" class="btn btn-success mx-2">Start</button>
+            <button id="stop" type="button" class="btn btn-danger mx-2">Stop</button>
+            <button id="send" type="button" class="btn btn-warning mx-2">Send</button>
+          </div>
+          <!-- <div class="container">
+            <button id="start" type="button" class="btn btn-custom mx-2"></button>
+            <button id="stop" type="button" class="btn btn-custom mx-2"></button>
+            <button id="send" type="button" class="btn btn-custom mx-2"></button>
+          </div> -->
+
+          <div class="container chats">
+            <h2>Your Responses</h2>
+            <div>Question: This is your question</div>
+            <div id="answer-1">Answer: This is your answer</div>
+            <!-- <button class="btn btn-secondary copy-button">
+              <i class="fas fa-copy"></i> Copy
+            </button> -->
+            <hr>
+          </div>
+
+          <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+          <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+          <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
+          </script>
+          <script>
+            function postData(url = "", data = {}) {
+              return fetch(url, {
+                method: "POST",
+                mode: "cors",
+                credentials: "same-origin",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                redirect: "follow",
+                referrerPolicy: "no-referrer",
+                body: JSON.stringify(data),
+              }).then((response) => response.json());
+            }
+
+
+
+            const populateUsingGpt = (input) => {
+              postData("/api", { input: input }).then((data) => {
+                console.log(data.message);
+                document.querySelector(".chats").innerHTML = document.querySelector(".chats").innerHTML + `<div>Question: ${input}</div><div>Answer: ${data.message}</div><hr>`;
+              });
+            }
+
+            let speech = false; // Initialize speech recognition state as false
+            let globalTranscript = '';
+
+            window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.interimResults = false;
+
+            recognition.addEventListener("result", (e) => {
+              const transcript = Array.from(e.results)
+                .map(result => result[0])
+                .map(result => result.transcript)
+                .join('');
+              globalTranscript = transcript;
+            });
+
+            recognition.addEventListener("end", () => {
+              if (speech) {
+                populateUsingGpt(globalTranscript);
+                recognition.start();
+              }
+            });
+
+            document.getElementById("start").addEventListener("click", () => {
+              speech = true; // Enable speech recognition
+              recognition.start();
+            });
+
+            document.getElementById("stop").addEventListener("click", () => {
+              speech = false; // Disable speech recognition
+              recognition.stop();
+            });
+
+            document.getElementById("send").addEventListener("click", () => {
+              const recordedSpeech = globalTranscript;
+
+              if (recordedSpeech) {
+                // Send the recorded speech to OpenAI for processing when the "Send" button is clicked
+                postData("/api", { action: 'send', input: recordedSpeech }).then((data) => {
+                  console.log(data.message);
+                  document.querySelector(".chats").innerHTML =
+                    document.querySelector(".chats").innerHTML +
+                    `<div>Question: ${recordedSpeech}</div><div>Answer: ${data.message}</div><hr>`;
+
+                  // Call the copy function with the response message
+                  copyAnswerToClipboard(data.message);
+                });
+              } else {
+                console.log("No recorded speech to send.");
+              }
+            });
+
+
+            // ... (the rest of your script)
+
+            // // Get the copy button element
+            // const copyButton = document.querySelector(".copy-button");
+
+            // // Get the answer div to be copied
+            // const answerDiv = document.getElementById("answer-1");
+
+            // // Add a click event listener to the copy button
+            // copyButton.addEventListener("click", () => {
+            //   // Create a temporary textarea element
+            //   const textArea = document.createElement("textarea");
+
+            //   // Set the value of the textarea to the answer content
+            //   textArea.value = answerDiv.innerText;
+
+            //   // Append the textarea to the document
+            //   document.body.appendChild(textArea);
+
+            //   // Select the text in the textarea
+            //   textArea.select();
+
+            //   // Copy the selected text to the clipboard
+            //   document.execCommand("copy");
+
+            //   // Optionally, provide some user feedback
+            //   //console.log("Answer copied to clipboard");
+
+            //   // Here, add the code to copy the answer to the clipboard
+            //   navigator.clipboard.writeText(data.message);
+
+            //   // Remove the temporary textarea
+            //   document.body.removeChild(textArea);
+            // });
+            // function copyAnswerToClipboard(answer) {
+            //   const textArea = document.createElement("textarea");
+            //   textArea.value = answer;
+            //   document.body.appendChild(textArea);
+            //   textArea.select();
+            //   document.execCommand("copy");
+            //   alert("Answer copied to clipboard");
+            //   document.body.removeChild(textArea);
+            // }
+          </script>
+        </body>
+      </html>
